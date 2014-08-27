@@ -22,5 +22,6 @@ griquire([
 	// 
 	// your code goes here...
 });
+</script>
 ```
 
