@@ -6,7 +6,8 @@
  */
 (function() {
 	// function(method, url, params, successFn, failureFn)
-	var ajax = function(c,e,a,f,g){var b=new XMLHttpRequest,d=[];if(a&&a instanceof Object&&0<Object.keys(a).length)for(var h in a)d.push(h+"="+encodeURIComponent(a[h]));d=d.join("&");c=c.toUpperCase();"POST"==c&&a&&0<Object.keys(a).length&&b.setRequestHeader("Content-type","application/x-www-form-urlencoded");"GET"==c&&a&&0<Object.keys(a).length&&(a=e.indexOf("?"),e+=(0<a?"&":"?")+d);b.open(c,e,!0);b.onreadystatechange=function(){4==b.readyState&&(200<=b.status&&299>=b.status?"function"==typeof f&&f(b.responseText):"function"==typeof g&&g(b.responseText))};b.send(d)};
+	var ajax=function(d,e,a,g,h){var b;if("undefined"!==typeof XMLHttpRequest)b=new XMLHttpRequest;else for(var c=["MSXML2.XmlHttp.5.0","MSXML2.XmlHttp.4.0","MSXML2.XmlHttp.3.0","MSXML2.XmlHttp.2.0","Microsoft.XmlHttp"],f=0,l=c.length;f<l;f++)try{b=new ActiveXObject(c[f]);break}catch(m){}c=[];if(a&&a instanceof Object&&0<Object.keys(a).length)for(var k in a)c.push(k+"="+encodeURIComponent(a[k]));c=c.join("&");d=d.toUpperCase();"POST"==d&&a&&0<Object.keys(a).length&&b.setRequestHeader("Content-type","application/x-www-form-urlencoded");
+	"GET"==d&&a&&0<Object.keys(a).length&&(a=e.indexOf("?"),e+=(0<a?"&":"?")+c);b.open(d,e,!0);b.onreadystatechange=function(){4==b.readyState&&(200<=b.status&&299>=b.status?"function"==typeof g&&g(b.responseText):"function"==typeof h&&h(b.responseText))};b.send(c)};
 	
 	var loadedScripts = {};
 	
