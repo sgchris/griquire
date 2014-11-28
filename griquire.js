@@ -76,6 +76,8 @@
 			embedScript(scriptSrc);
 		});
 	};
+
+	var executedCallbacks = {};
 	
 	window.griquire = function(deps, callbackFn) {
 		
@@ -89,9 +91,14 @@
 				embedScripts(deps);
 				
 				// call the callback
-				if (typeof(callbackFn) == 'function') {
-					callbackFn();
+				if (!executedCallbacks[deps.join(',')]) {
+					if (typeof(callbackFn) == 'function') {
+						callbackFn();
+					}
+
+					executedCallbacks[deps.join(',')] = true;
 				}
+
 			});
 		} else {
 			if (typeof(callbackFn) == 'function') {
