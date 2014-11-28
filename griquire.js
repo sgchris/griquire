@@ -71,14 +71,10 @@
 		
 	};
 	
-	var embedScripts = function(scriptSrcs, callbackFn) {
+	var embedScripts = function(scriptSrcs) {
 		scriptSrcs.forEach(function(scriptSrc) {
 			embedScript(scriptSrc);
 		});
-		
-		if (typeof(callbackFn) == 'function') {
-			callbackFn();
-		}
 	};
 	
 	window.griquire = function(deps, callbackFn) {
