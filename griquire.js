@@ -10,7 +10,9 @@
 	"GET"==d&&a&&0<Object.keys(a).length&&(a=e.indexOf("?"),e+=(0<a?"&":"?")+c);b.open(d,e,!0);b.onreadystatechange=function(){4==b.readyState&&(200<=b.status&&299>=b.status?"function"==typeof g&&g(b.responseText):"function"==typeof h&&h(b.responseText))};b.send(c)};
 	
 	var loadedScripts = {};
-	
+
+
+
 	var loadScript = function(scriptSrc, callbackFn) {
 		
 		// check if loaded before
@@ -36,6 +38,7 @@
 		}
 	};
 	
+
 	var loadScripts = function(scriptSrcs, callbackFn) {
 		var totalToLoad = scriptSrcs.length;
 		
@@ -62,8 +65,9 @@
 			
 			// add the script to the header
 			var script = document.createElement('script');
-			script.textContent = loadedScripts[scriptSrc].content;
+			script.textContent = '/** '+scriptSrc+" (" +(new Date()).toISOString()+ ") **/\n"+loadedScripts[scriptSrc].content;
 			document.getElementsByTagName('head')[0].appendChild(script);
+
 			
 			// mark that the script already loaded
 			loadedScripts[scriptSrc].loaded = true;
@@ -77,29 +81,99 @@
 		});
 	};
 
+	var queue = (function() {
+
+		// the queue of the items to be processed
+		var q = [];
+
+		// prepare the item for the queue
+		var getQObject = function(item) {
+			if (typeof(item) == 'function') {
+				return {
+					action: 'execute',
+					item: item
+				};
+			} else if (typeof(item) == 'string') {
+				return {
+					action: 'load',
+					item: item
+				};
+			} else {
+				return false;
+			}
+		}
+
+		// q processor
+		var processing = false;
+		var process = function() {
+			if (processing) return;
+			processing = true;
+
+			var theItem = q.shift();
+
+			if (theItem === false) {
+				processing = false;
+				process();
+			} else if (theItem.action == 'load') {
+				loadScript(theItem.item, function() {
+					embedScript(theItem.item);
+
+					processing = false;
+					process();
+				});
+			} else if (theItem.action == 'execute') {
+				theItem.item();
+
+				processing = false;
+				process();
+			}
+		};
+
+		// the object itself
+		var self = {
+			append: function(items) {
+				if (!(items instanceof Array)) {
+					items = [items];
+				}
+
+				items.forEach(function(item) {
+					q.push(getQObject(item));
+				});
+
+				process();
+			},
+
+			inject: function(items) {
+				if (!(items instanceof Array)) {
+					items = [items];
+				}
+
+				items.reverse().forEach(function(item) {
+					q.unshift(getQObject(item));
+				});
+
+				process();
+			}
+		};
+
+		return self;
+	})();
+
 	var executedCallbacks = {};
 	
 	window.griquire = function(deps, callbackFn) {
 		
 		// check if there are scripts to load
 		if (deps && deps.length > 0) {
-			
-			// load scripts' content
-			loadScripts(deps, function() {
-				
-				// add scripts to the page
-				embedScripts(deps);
-				
-				// call the callback
-				if (!executedCallbacks[deps.join(',')]) {
-					if (typeof(callbackFn) == 'function') {
-						callbackFn();
-					}
 
-					executedCallbacks[deps.join(',')] = true;
-				}
+			var operations = deps.slice(0);
 
-			});
+			if (!executedCallbacks[deps.join(',')]) {
+				operations.push(callbackFn);
+				executedCallbacks[deps.join(',')] = true;
+			}
+
+			queue.inject(operations);
 		} else {
 			if (typeof(callbackFn) == 'function') {
 				callbackFn();
