@@ -106,7 +106,7 @@
 		// q processor
 		var processing = false;
 		var process = function() {
-			if (processing) return;
+			if (processing || q.length == 0) return;
 			processing = true;
 
 			var theItem = q.shift();
