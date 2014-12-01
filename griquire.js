@@ -163,6 +163,11 @@
 	
 	window.griquire = function(deps, callbackFn) {
 		
+		// convert deps to array if it's string (when only one script requested)
+		if (deps && typeof(deps) == 'string') {
+			deps = [deps];
+		}
+		
 		// check if there are scripts to load
 		if (deps && deps.length > 0) {
 
