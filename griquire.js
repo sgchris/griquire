@@ -11,8 +11,6 @@
 	
 	var loadedScripts = {};
 
-
-
 	var loadScript = function(scriptSrc, callbackFn) {
 		
 		// check if loaded before
@@ -170,9 +168,14 @@
 		
 		// check if there are scripts to load
 		if (deps && deps.length > 0) {
+			
+			// load all the scripts
+			loadScripts(deps);
 
+			// add dependencies to the queue
 			var operations = deps.slice(0);
 
+			// add callback to the queue
 			if (!executedCallbacks[deps.join(',')]) {
 				operations.push(callbackFn);
 				executedCallbacks[deps.join(',')] = true;
